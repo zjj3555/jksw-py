@@ -60,7 +60,8 @@ $(shell dkp-pacman -Suy --noconfirm >/dev/null 2>&1 || true)
 endif
 
 # 用 --start-group 让 ld 循环解析静态库间相互引用
-LIBS        := $(NX_SPECS) -Wl,--start-group $(MPV_LIBS) $(CURL_LIBS) -lnx -Wl,--end-group
+# -pie 与编译期 -fPIE 匹配, 避免 "read-only segment has dynamic relocations"
+LIBS        := $(NX_SPECS) -pie -Wl,--start-group $(MPV_LIBS) $(CURL_LIBS) -lnx -Wl,--end-group
 
 OBJS        := $(SOURCES:source/%.cpp=$(BUILD)/%.o)
 
