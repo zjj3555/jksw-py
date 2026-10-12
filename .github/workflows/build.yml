@@ -11,9 +11,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: 安装依赖库 (libmpv + libcurl, libnx 已含在 switch-dev)
+      - name: 安装依赖库 (libnx + libmpv 必需, libcurl 可选)
         run: |
-          dkp-pacman -S --noconfirm switch-dev switch-libmpv switch-libcurl
+          dkp-pacman -S --noconfirm switch-dev switch-libmpv
+          dkp-pacman -S --noconfirm switch-libcurl || echo "libcurl 不可用, 跳过(列表将仅支持本地文件)"
 
       - name: 编译 juku.nro
         env:
