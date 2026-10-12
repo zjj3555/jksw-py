@@ -62,6 +62,13 @@ LIBS        := $(NX_SPECS) -Wl,--start-group $(MPV_LIBS) $(CURL_LIBS) $(MESA_LIB
 
 OBJS        := $(SOURCES:source/%.cpp=$(BUILD)/%.o)
 
+# --- 诊断(编译失败时在日志里能看到真实路径/库名) ---
+$(info PKG_MPV=[$(MPV_LIBS)])
+$(info NX_SPECS_FILE=[$(NX_SPECS_FILE)])
+$(info MESA_LIBS=[$(MESA_LIBS)])
+$(info $(shell find /opt/devkitpro -name '*.specs' 2>/dev/null | sed 's/^/DIAG_SPECS: /'))
+$(info $(shell ls /opt/devkitpro/portlibs/switch/lib 2>/dev/null | grep -iE 'nir|gallium|spirv|mesa' | sed 's/^/DIAG_MESA_A: /'))
+
 all: $(NRO)
 $(NRO): $(OBJS)
 	$(CXX) $(OBJS) $(LIBDIRS) $(LIBS) -o $(TARGET).elf
