@@ -2,7 +2,7 @@
 on:
   push:
     branches: [ main ]
-  workflow_dispatch:        # 也可在 Actions 页面手动触发
+  workflow_dispatch:
 
 jobs:
   build:
@@ -10,17 +10,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: 安装 devkitPro 工具链
+      - name: 安装 devkitPro 工具链 (apt 源)
         run: |
-          wget -q https://github.com/devkitPro/setup-business-devkitpro/raw/master/install-devkitpro-pacman
-          chmod +x install-devkitpro-pacman
-          sudo ./install-devkitpro-pacman
+          curl -sL https://apt.devkitpro.org/KEY.gpg | sudo gpg --dearmor -o /usr/share/keyrings/devkitpro.gpg
+          echo "deb [signed-by=/usr/share/keyrings/devkitpro.gpg] https://apt.devkitpro.org/ devkitpro main" | sudo tee /etc/apt/sources.list.d/devkitpro.list
+          sudo apt-get update
+          sudo apt-get install -y devkitpro-pacman
           echo "DEVKITPRO=/opt/devkitpro" >> "$GITHUB_ENV"
           echo "/opt/devkitpro/devkitpro-pacman/bin" >> "$GITHUB_PATH"
 
       - name: 安装依赖库 (libnx + libmpv + libcurl)
         run: |
-          dkp-pacman -S --noconfirm switch-dev switch-libnx switch-libmpv switch-libcurl
+          sudo dkp-pacman -S --noconfirm switch-dev switch-libnx switch-libmpv switch-libcurl
 
       - name: 编译 juku.nro
         run: |

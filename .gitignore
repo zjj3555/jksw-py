@@ -17,3 +17,9 @@ build/
 api_push.py
 api_push2.py
 push2.log
+
+# 本地凭据/临时(勿入库)
+gh_token.txt
+gh_user.txt
+gh_repo_url.txt
+gh_login_*.txt
