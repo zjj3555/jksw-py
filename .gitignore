@@ -1,0 +1,14 @@
+# 临时 / 本地文件(不要入库)
+gh.exe
+gh_extract/
+gh.zip
+gh_url.txt
+gh_token.txt
+gh_user.txt
+gh_login_out.txt
+gh_login_err.txt
+gh_device.py
+__pycache__/
+*.pyc
+build/
+*.elf
