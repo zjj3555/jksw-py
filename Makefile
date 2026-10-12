@@ -61,10 +61,10 @@ LIBS        := $(NX_SPECS) -Wl,--start-group $(MPV_LIBS) $(CURL_LIBS) $(MESA_LIB
 
 OBJS        := $(SOURCES:source/%.cpp=$(BUILD)/%.o)
 
-# --- 诊断(编译失败时在日志里能看到真实路径/库名) ---
+# --- 诊断: 打印 portlibs 下全部 .a 真实清单, 便于定位 mesa nir 所在库 ---
 $(info NX_SPECS=[$(NX_SPECS)])
-$(info MESA_LIBS=[$(MESA_LIBS)])
-$(info $(shell find /opt/devkitpro/portlibs/switch/lib -name 'lib*.a' 2>/dev/null | grep -iE 'nir|gallium|spirv|mesa' | sed 's,.*/,,;s/^/DIAG_MESA_A: /'))
+$(info $(shell ls /opt/devkitpro/portlibs/switch/lib/*.a 2>/dev/null | sed 's,.*/,,;s/^/DIAG_ALL_A: /'))
+$(info $(shell ls /opt/devkitpro/libnx/lib/*.a 2>/dev/null | sed 's,.*/,,;s/^/DIAG_LIBNX_A: /'))
 
 all: $(NRO)
 $(NRO): $(OBJS)
