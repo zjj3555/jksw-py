@@ -44,7 +44,13 @@ MPV_LIBS    := $(subst -lnx,,$(MPV_LIBS))
 MPV_LIBS    := $(subst -fPIE,,$(MPV_LIBS))
 MPV_LIBS    := $(subst -pie,,$(MPV_LIBS))
 
-LIBS        := $(MPV_LIBS) $(CURL_LIBS) -lnx
+# libnx 的 specs 提供正确的 crt0/链接脚本(__tls_start/_DYNAMIC/__got_start__ 等符号)
+NX_SPECS    := -specs=$(LIBNX)/libnx.specs
+# mesa(EGL) 静态链接需要 nir/gallium 等内部库, pkg-config 未带全
+MESA_LIBS   := -lnir -lgallium -lmesa_gallium -lmesa_nir -lspirv -lcompiler
+
+# 用 --start-group 让 ld 循环解析静态库间相互引用
+LIBS        := $(NX_SPECS) -Wl,--start-group $(MPV_LIBS) $(CURL_LIBS) $(MESA_LIBS) -lnx -Wl,--end-group
 
 OBJS        := $(SOURCES:source/%.cpp=$(BUILD)/%.o)
 
