@@ -16,6 +16,25 @@
 #include <fstream>
 #include <sstream>
 
+// ---------------- 按键宏兜底 (适配新旧 libnx) ----------------
+// 新版 libnx(≥4.x) 移除了裸 KEY_* 宏, 这里用稳定的 HID 位定义补齐。
+#if !defined(KEY_A)
+#define KEY_A    (1ULL<<0)
+#define KEY_B    (1ULL<<1)
+#define KEY_X    (1ULL<<2)
+#define KEY_Y    (1ULL<<3)
+#define KEY_L    (1ULL<<4)
+#define KEY_R    (1ULL<<5)
+#define KEY_ZL   (1ULL<<6)
+#define KEY_ZR   (1ULL<<7)
+#define KEY_PLUS (1ULL<<10)
+#define KEY_MINUS (1ULL<<11)
+#define KEY_LEFT (1ULL<<12)
+#define KEY_UP   (1ULL<<13)
+#define KEY_RIGHT (1ULL<<14)
+#define KEY_DOWN (1ULL<<15)
+#endif
+
 // ---------------- 最小 JSON 解析 (仅支持本项目用到的结构) ----------------
 struct JVal {
     enum T { NUL, STR, ARR, OBJ, NUM, BOL } t = NUL;
@@ -169,7 +188,7 @@ static void draw_src(const std::string& item, const std::vector<Source>& ss, int
 }
 
 int main(int argc, char** argv){
-    consoleInit();
+    consoleInit(NULL);
     padConfigureInput(1, HidNpadStyleSet_NpadStandard);
     PadState pad;
     padInitializeDefault(&pad);
@@ -197,7 +216,7 @@ reload:
         printf("\x1b[2J\x1b[1;1H片单为空或加载失败!\n来源:%s\nX 重试   + 退出\n", src.c_str());
         while(appletMainLoop()){ padUpdate(&pad); u64 d=padGetButtonsDown(&pad);
             if(d&KEY_X) goto reload; if(d&KEY_PLUS) break; svcSleepThread(16'000'000); }
-        consoleFinish(); return 0;
+        consoleExit(NULL); return 0;
     }
 
     int sel=0;
@@ -212,7 +231,7 @@ reload:
             if(down & KEY_UP)   sel=(sel+pl.items.size()-1)%pl.items.size();
             if(down & KEY_A){
                 cur=&pl.items[sel];
-                if(cur->sources.size()==1){ consoleExit(); play_url(cur->sources[0].url); consoleInit(); }
+                if(cur->sources.size()==1){ consoleExit(NULL); play_url(cur->sources[0].url); consoleInit(NULL); }
                 else { mode=SRC; srcsel=0; }
             }
             if(down & KEY_X) goto reload;
@@ -221,12 +240,12 @@ reload:
             draw_src(cur->name, cur->sources, srcsel);
             if(down & KEY_DOWN) srcsel=(srcsel+1)%cur->sources.size();
             if(down & KEY_UP)   srcsel=(srcsel+cur->sources.size()-1)%cur->sources.size();
-            if(down & KEY_A){ consoleExit(); play_url(cur->sources[srcsel].url); consoleInit(); mode=LIST; }
+            if(down & KEY_A){ consoleExit(NULL); play_url(cur->sources[srcsel].url); consoleInit(NULL); mode=LIST; }
             if(down & KEY_B) mode=LIST;
             if(down & KEY_PLUS) break;
         }
         svcSleepThread(16'000'000);
     }
-    consoleFinish();
+    consoleExit(NULL);
     return 0;
 }
