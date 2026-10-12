@@ -61,10 +61,9 @@ LIBS        := $(NX_SPECS) -Wl,--start-group $(MPV_LIBS) $(CURL_LIBS) $(MESA_LIB
 
 OBJS        := $(SOURCES:source/%.cpp=$(BUILD)/%.o)
 
-# --- 诊断: 打印 portlibs 下全部 .a 真实清单, 便于定位 mesa nir 所在库 ---
+# --- 诊断: 用 nm 找 spirv_to_nir / nir_shader_clone 定义在哪个 .a ---
 $(info NX_SPECS=[$(NX_SPECS)])
-$(info $(shell ls /opt/devkitpro/portlibs/switch/lib/*.a 2>/dev/null | sed 's,.*/,,;s/^/DIAG_ALL_A: /'))
-$(info $(shell ls /opt/devkitpro/libnx/lib/*.a 2>/dev/null | sed 's,.*/,,;s/^/DIAG_LIBNX_A: /'))
+$(info $(shell for a in /opt/devkitpro/portlibs/switch/lib/lib*.a /opt/devkitpro/libnx/lib/lib*.a; do for s in spirv_to_nir nir_shader_clone nir_opt_deref; do if nm "$$a" 2>/dev/null | grep -q " T $$s$$"; then echo "DIAG_DEF: $$s in $$(basename $$a)"; fi; done; done))
 
 all: $(NRO)
 $(NRO): $(OBJS)
