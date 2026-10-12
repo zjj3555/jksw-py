@@ -60,8 +60,8 @@ $(shell dkp-pacman -Suy --noconfirm >/dev/null 2>&1 || true)
 endif
 
 # 用 --start-group 让 ld 循环解析静态库间相互引用
-# -pie 与编译期 -fPIE 匹配, 避免 "read-only segment has dynamic relocations"
-LIBS        := $(NX_SPECS) -pie -Wl,--start-group $(MPV_LIBS) $(CURL_LIBS) -lnx -Wl,--end-group
+# -z notext 允许只读段存在动态重定位(ffmpeg/mpv 等 -fPIC 静态库所致)
+LIBS        := $(NX_SPECS) -Wl,-z,notext -Wl,--start-group $(MPV_LIBS) $(CURL_LIBS) -lnx -Wl,--end-group
 
 OBJS        := $(SOURCES:source/%.cpp=$(BUILD)/%.o)
 
