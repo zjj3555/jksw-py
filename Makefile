@@ -45,9 +45,17 @@ MPV_LIBS    := $(subst -fPIE,,$(MPV_LIBS))
 MPV_LIBS    := $(subst -pie,,$(MPV_LIBS))
 
 # libnx 的 specs 提供正确的 crt0/链接脚本(__tls_start/_DYNAMIC/__got_start__ 等符号)
-NX_SPECS    := -specs=$(LIBNX)/libnx.specs
-# mesa(EGL) 静态链接需要 nir/gallium 等内部库, pkg-config 未带全
-MESA_LIBS   := -lnir -lgallium -lmesa_gallium -lmesa_nir -lspirv -lcompiler
+# 不同 devkitPro 版本路径不一, 自动查找
+NX_SPECS_FILE := $(shell find $(LIBNX) $(DEVKITPRO)/devkitA64 -name libnx.specs 2>/dev/null | head -1)
+ifeq ($(NX_SPECS_FILE),)
+NX_SPECS :=
+else
+NX_SPECS := -specs=$(NX_SPECS_FILE)
+endif
+
+# mesa(EGL) 静态链接需要 nir/gallium 等内部库, pkg-config 未带全; 自动探测存在的 .a
+MESA_LIBS   := $(shell for l in nir gallium mesa_gallium mesa_nir spirv compiler; do \
+                      f=$(PORTLIBS)/lib/lib$$l.a; [ -f $$f ] && echo -l$$l; done)
 
 # 用 --start-group 让 ld 循环解析静态库间相互引用
 LIBS        := $(NX_SPECS) -Wl,--start-group $(MPV_LIBS) $(CURL_LIBS) $(MESA_LIBS) -lnx -Wl,--end-group
