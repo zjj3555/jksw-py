@@ -45,17 +45,16 @@ MPV_LIBS    := $(subst -fPIE,,$(MPV_LIBS))
 MPV_LIBS    := $(subst -pie,,$(MPV_LIBS))
 
 # libnx 的 specs 提供正确的 crt0/链接脚本(__tls_start/_DYNAMIC/__got_start__ 等符号)
-# 不同 devkitPro 版本路径不一, 自动查找
-NX_SPECS_FILE := $(shell find $(LIBNX) $(DEVKITPRO)/devkitA64 -name libnx.specs 2>/dev/null | head -1)
-ifeq ($(NX_SPECS_FILE),)
+# 容器内实际文件名为 /opt/devkitpro/libnx/switch.specs
+NX_SPECS_FILE := $(LIBNX)/switch.specs
+ifeq ($(wildcard $(NX_SPECS_FILE)),)
 NX_SPECS :=
 else
 NX_SPECS := -specs=$(NX_SPECS_FILE)
 endif
 
-# mesa(EGL) 静态链接需要 nir/gallium 等内部库, pkg-config 未带全; 自动探测存在的 .a
-MESA_LIBS   := $(shell for l in nir gallium mesa_gallium mesa_nir spirv compiler; do \
-                      f=$(PORTLIBS)/lib/lib$$l.a; [ -f $$f ] && echo -l$$l; done)
+# mesa(EGL) 静态链接需要 nir/gallium/spirv 等内部库, pkg-config 未带全; 用 find 自动定位真实文件名
+MESA_LIBS   := $(shell find $(PORTLIBS)/lib -type f \( -name 'libnir*.a' -o -name 'libgallium*.a' -o -name 'libspirv*.a' -o -name 'libmesa*.a' \) 2>/dev/null | sed 's,.*/lib\(.*\)\.a,-\1,')
 
 # 用 --start-group 让 ld 循环解析静态库间相互引用
 LIBS        := $(NX_SPECS) -Wl,--start-group $(MPV_LIBS) $(CURL_LIBS) $(MESA_LIBS) -lnx -Wl,--end-group
@@ -63,11 +62,9 @@ LIBS        := $(NX_SPECS) -Wl,--start-group $(MPV_LIBS) $(CURL_LIBS) $(MESA_LIB
 OBJS        := $(SOURCES:source/%.cpp=$(BUILD)/%.o)
 
 # --- 诊断(编译失败时在日志里能看到真实路径/库名) ---
-$(info PKG_MPV=[$(MPV_LIBS)])
-$(info NX_SPECS_FILE=[$(NX_SPECS_FILE)])
+$(info NX_SPECS=[$(NX_SPECS)])
 $(info MESA_LIBS=[$(MESA_LIBS)])
-$(info $(shell find /opt/devkitpro -name '*.specs' 2>/dev/null | sed 's/^/DIAG_SPECS: /'))
-$(info $(shell ls /opt/devkitpro/portlibs/switch/lib 2>/dev/null | grep -iE 'nir|gallium|spirv|mesa' | sed 's/^/DIAG_MESA_A: /'))
+$(info $(shell find /opt/devkitpro/portlibs/switch/lib -name 'lib*.a' 2>/dev/null | grep -iE 'nir|gallium|spirv|mesa' | sed 's,.*/,,;s/^/DIAG_MESA_A: /'))
 
 all: $(NRO)
 $(NRO): $(OBJS)
