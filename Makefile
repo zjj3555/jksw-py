@@ -61,9 +61,10 @@ LIBS        := $(NX_SPECS) -Wl,--start-group $(MPV_LIBS) $(CURL_LIBS) $(MESA_LIB
 
 OBJS        := $(SOURCES:source/%.cpp=$(BUILD)/%.o)
 
-# --- 诊断: 用 nm 找 spirv_to_nir / nir 符号所在库与类型 ---
+# --- 诊断: 精确查找 spirv_to_nir / nir_shader_clone 的全局定义(T)所在库 ---
 $(info NX_SPECS=[$(NX_SPECS)])
-$(info $(shell for a in /opt/devkitpro/portlibs/switch/lib/lib*.a; do m=$$(nm $$a 2>/dev/null | grep -iE 'spirv_to_nir|nir_shader_clone| T nir_' | head -3); [ -n "$$m" ] && echo "DIAG_IN $$(basename $$a): $$m"; done))
+$(info $(shell for a in /opt/devkitpro/portlibs/switch/lib/lib*.a /opt/devkitpro/libnx/lib/lib*.a; do m=$$(nm $$a 2>/dev/null | grep -E ' T (spirv_to_nir|nir_shader_clone|nir_opt_deref|nir_lower_variable_initializers)$$' | head -4); [ -n "$$m" ] && echo "DIAG_T $$(basename $$a): $$m"; done))
+$(info $(shell nm /opt/devkitpro/portlibs/switch/lib/libEGL.a 2>/dev/null | grep -E ' [TtU] (spirv_to_nir|_mesa_spirv_to_nir|nir_shader_clone)$$' | head -8 | sed 's/^/DIAG_EGL: /'))
 
 all: $(NRO)
 $(NRO): $(OBJS)
