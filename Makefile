@@ -1,0 +1,52 @@
+# juku.nro 极简播放器 —— 交叉编译 Makefile (devkitA64)
+# 在装有 devkitPro 的机器上: pacman -S switch-dev switch-libmpv switch-libcurl
+# 然后在本目录: make
+TARGET      := juku
+BUILD       := build
+SOURCES     := source/main.cpp
+NRO         := $(TARGET).nro
+
+PREFIX      := $(DEVKITPRO)/devkitA64/bin/aarch64-none-elf-
+CC          := $(PREFIX)gcc
+CXX         := $(PREFIX)g++
+STRIP       := $(PREFIX)strip
+
+# libnx 必备
+ARCH        := -march=armv8-a -mtune=cortex-a57 -mtp=soft -fPIE
+CFLAGS      := -g -Wall -O2 -ffunction-sections -fdata-sections \
+               $(ARCH) -D__SWITCH__ -DHAVE_CURL
+CXXFLAGS    := $(CFLAGS)
+
+PORTLIBS    := $(DEVKITPRO)/portlibs/switch
+LIBNX       := $(DEVKITPRO)/libnx
+PKGCONFIG  := $(PORTLIBS)/bin/aarch64-none-elf-pkg-config
+export PKG_CONFIG_PATH := $(PORTLIBS)/lib/pkgconfig
+
+INCLUDES    := -I$(LIBNX)/include -I$(PORTLIBS)/include
+LIBDIRS     := -L$(LIBNX)/lib -L$(PORTLIBS)/lib
+
+# 优先用 pkg-config 取 mpv 全量静态依赖(含 ffmpeg 等), 失败则回退到 -lmpv
+MPV_LIBS    := $(shell $(PKGCONFIG) --static --libs mpv 2>/dev/null)
+ifeq ($(MPV_LIBS),)
+MPV_LIBS    := -lmpv -lz
+endif
+
+LIBS        := $(MPV_LIBS) -lcurl -lnx
+
+OBJS        := $(SOURCES:source/%.cpp=$(BUILD)/%.o)
+
+all: $(NRO)
+$(NRO): $(OBJS)
+	$(CXX) $(OBJS) $(LIBDIRS) $(LIBS) -o $(TARGET).elf
+	@$(DEVKITPRO)/tools/bin/elf2nro $(TARGET).elf $(NRO) --nro-dir $(BUILD)/nrodir >/dev/null 2>&1 || \
+	 $(DEVKITPRO)/devkitA64/bin/elf2nro $(TARGET).elf $(NRO) --nro-dir $(BUILD)/nrodir
+	@$(STRIP) $(TARGET).elf 2>/dev/null || true
+
+$(BUILD)/%.o: source/%.cpp
+	@mkdir -p $(BUILD)
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+
+clean:
+	rm -rf $(BUILD) $(TARGET).elf $(NRO)
+
+.PHONY: all clean
