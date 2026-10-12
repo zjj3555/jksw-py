@@ -14,7 +14,7 @@ STRIP       := $(PREFIX)strip
 # libnx 必备
 ARCH        := -march=armv8-a -mtune=cortex-a57 -mtp=soft -fPIE
 CFLAGS      := -g -Wall -O2 -ffunction-sections -fdata-sections \
-               $(ARCH) -D__SWITCH__ -DHAVE_CURL
+               $(ARCH) -D__SWITCH__
 CXXFLAGS    := $(CFLAGS)
 
 PORTLIBS    := $(DEVKITPRO)/portlibs/switch
@@ -31,7 +31,14 @@ ifeq ($(MPV_LIBS),)
 MPV_LIBS    := -lmpv -lz
 endif
 
-LIBS        := $(MPV_LIBS) -lcurl -lnx
+# libcurl 为可选: 安装了 switch-libcurl 才开启 HTTP 拉取列表功能
+CURL_AVAIL  := $(shell $(PKGCONFIG) --exists libcurl 2>/dev/null && echo yes)
+ifeq ($(CURL_AVAIL),yes)
+CFLAGS      += -DHAVE_CURL
+CURL_LIBS   := -lcurl
+endif
+
+LIBS        := $(MPV_LIBS) $(CURL_LIBS) -lnx
 
 OBJS        := $(SOURCES:source/%.cpp=$(BUILD)/%.o)
 
