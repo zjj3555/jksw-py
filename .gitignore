@@ -12,3 +12,8 @@ __pycache__/
 *.pyc
 build/
 *.elf
+
+# 本地推送辅助脚本(非项目内容)
+api_push.py
+api_push2.py
+push2.log
