@@ -53,18 +53,16 @@ else
 NX_SPECS := -specs=$(NX_SPECS_FILE)
 endif
 
-# mesa(EGL) 静态链接需要 nir/gallium/spirv 等内部库, pkg-config 未带全; 用 find 自动定位真实文件名
-MESA_LIBS   := $(shell find $(PORTLIBS)/lib -type f \( -name 'libnir*.a' -o -name 'libgallium*.a' -o -name 'libspirv*.a' -o -name 'libmesa*.a' \) 2>/dev/null | sed 's,.*/lib\(.*\)\.a,-\1,')
+# 镜像基础 mesa 与 pacman 新装的 libmpv 可能版本不一致(缺 nir 符号);
+# CI 环境下先整体同步到仓库内一致版本。本地(非 CI)不执行, 不影响开发机。
+ifeq ($(CI),true)
+$(shell dkp-pacman -Suy --noconfirm >/dev/null 2>&1 || true)
+endif
 
 # 用 --start-group 让 ld 循环解析静态库间相互引用
-LIBS        := $(NX_SPECS) -Wl,--start-group $(MPV_LIBS) $(CURL_LIBS) $(MESA_LIBS) -lnx -Wl,--end-group
+LIBS        := $(NX_SPECS) -Wl,--start-group $(MPV_LIBS) $(CURL_LIBS) -lnx -Wl,--end-group
 
 OBJS        := $(SOURCES:source/%.cpp=$(BUILD)/%.o)
-
-# --- 诊断: 精确查找 spirv_to_nir / nir_shader_clone 的全局定义(T)所在库 ---
-$(info NX_SPECS=[$(NX_SPECS)])
-$(info $(shell for a in /opt/devkitpro/portlibs/switch/lib/lib*.a /opt/devkitpro/libnx/lib/lib*.a; do m=$$(nm $$a 2>/dev/null | grep -E ' T (spirv_to_nir|nir_shader_clone|nir_opt_deref|nir_lower_variable_initializers)$$' | head -4); [ -n "$$m" ] && echo "DIAG_T $$(basename $$a): $$m"; done))
-$(info $(shell nm /opt/devkitpro/portlibs/switch/lib/libEGL.a 2>/dev/null | grep -E ' [TtU] (spirv_to_nir|_mesa_spirv_to_nir|nir_shader_clone)$$' | head -8 | sed 's/^/DIAG_EGL: /'))
 
 all: $(NRO)
 $(NRO): $(OBJS)
