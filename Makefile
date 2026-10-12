@@ -61,9 +61,9 @@ LIBS        := $(NX_SPECS) -Wl,--start-group $(MPV_LIBS) $(CURL_LIBS) $(MESA_LIB
 
 OBJS        := $(SOURCES:source/%.cpp=$(BUILD)/%.o)
 
-# --- 诊断: 用 nm 找 spirv_to_nir / nir_shader_clone 定义在哪个 .a ---
+# --- 诊断: 用 nm 找 spirv_to_nir / nir 符号所在库与类型 ---
 $(info NX_SPECS=[$(NX_SPECS)])
-$(info $(shell for a in /opt/devkitpro/portlibs/switch/lib/lib*.a /opt/devkitpro/libnx/lib/lib*.a; do for s in spirv_to_nir nir_shader_clone nir_opt_deref; do if nm "$$a" 2>/dev/null | grep -q " T $$s$$"; then echo "DIAG_DEF: $$s in $$(basename $$a)"; fi; done; done))
+$(info $(shell for a in /opt/devkitpro/portlibs/switch/lib/lib*.a; do m=$$(nm $$a 2>/dev/null | grep -iE 'spirv_to_nir|nir_shader_clone| T nir_' | head -3); [ -n "$$m" ] && echo "DIAG_IN $$(basename $$a): $$m"; done))
 
 all: $(NRO)
 $(NRO): $(OBJS)
