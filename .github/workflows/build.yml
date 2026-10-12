@@ -1,4 +1,4 @@
-﻿name: build-juku-nro
+name: build-juku-nro
 on:
   push:
     branches: [ main ]
@@ -11,9 +11,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: 安装依赖库 (libnx + libmpv + libcurl)
+      - name: 安装依赖库 (libmpv + libcurl, libnx 已含在 switch-dev)
         run: |
-          dkp-pacman -S --noconfirm switch-libnx switch-libmpv switch-libcurl
+          dkp-pacman -S --noconfirm switch-dev switch-libmpv switch-libcurl
 
       - name: 编译 juku.nro
         env:
