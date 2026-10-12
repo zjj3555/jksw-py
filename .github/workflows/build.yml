@@ -7,23 +7,17 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    container: devkitpro/devkita64:latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: 安装 devkitPro 工具链 (apt 源)
-        run: |
-          curl -sL https://apt.devkitpro.org/KEY.gpg | sudo gpg --dearmor -o /usr/share/keyrings/devkitpro.gpg
-          echo "deb [signed-by=/usr/share/keyrings/devkitpro.gpg] https://apt.devkitpro.org/ devkitpro main" | sudo tee /etc/apt/sources.list.d/devkitpro.list
-          sudo apt-get update
-          sudo apt-get install -y devkitpro-pacman
-          echo "DEVKITPRO=/opt/devkitpro" >> "$GITHUB_ENV"
-          echo "/opt/devkitpro/devkitpro-pacman/bin" >> "$GITHUB_PATH"
-
       - name: 安装依赖库 (libnx + libmpv + libcurl)
         run: |
-          sudo dkp-pacman -S --noconfirm switch-dev switch-libnx switch-libmpv switch-libcurl
+          dkp-pacman -S --noconfirm switch-libnx switch-libmpv switch-libcurl
 
       - name: 编译 juku.nro
+        env:
+          DEVKITPRO: /opt/devkitpro
         run: |
           make
 
