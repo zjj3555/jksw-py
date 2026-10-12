@@ -17,6 +17,13 @@ CFLAGS      := -g -Wall -O2 -ffunction-sections -fdata-sections \
                $(ARCH) -D__SWITCH__
 CXXFLAGS    := $(CFLAGS)
 
+# libcurl 为可选: 安装了 switch-libcurl 才开启 HTTP 拉取列表功能
+CURL_AVAIL  := $(shell $(PKGCONFIG) --exists libcurl 2>/dev/null && echo yes)
+ifeq ($(CURL_AVAIL),yes)
+CFLAGS      += -DHAVE_CURL
+CURL_LIBS   := -lcurl
+endif
+
 PORTLIBS    := $(DEVKITPRO)/portlibs/switch
 LIBNX       := $(DEVKITPRO)/libnx
 PKGCONFIG  := $(PORTLIBS)/bin/aarch64-none-elf-pkg-config
@@ -30,13 +37,12 @@ MPV_LIBS    := $(shell $(PKGCONFIG) --static --libs mpv 2>/dev/null)
 ifeq ($(MPV_LIBS),)
 MPV_LIBS    := -lmpv -lz
 endif
-
-# libcurl 为可选: 安装了 switch-libcurl 才开启 HTTP 拉取列表功能
-CURL_AVAIL  := $(shell $(PKGCONFIG) --exists libcurl 2>/dev/null && echo yes)
-ifeq ($(CURL_AVAIL),yes)
-CFLAGS      += -DHAVE_CURL
-CURL_LIBS   := -lcurl
-endif
+# pkg-config 可能已带 -lnx/-fPIE, 这里去掉:
+#  - -lnx 必须留到最后, 放中间会导致 _start/TLS 符号多重定义/未定义
+#  - -fPIE 会令 ld 选 PIE 版 crt0, 与 libnx 自带 _start 冲突
+MPV_LIBS    := $(subst -lnx,,$(MPV_LIBS))
+MPV_LIBS    := $(subst -fPIE,,$(MPV_LIBS))
+MPV_LIBS    := $(subst -pie,,$(MPV_LIBS))
 
 LIBS        := $(MPV_LIBS) $(CURL_LIBS) -lnx
 
