@@ -4,6 +4,7 @@
   "name": "Juku 片单 (HLS)",
   "description": "把 juku 的免登录 HLS 直链片单作为 Stremio 插件接入 SwitchStream。",
   "types": ["movie"],
+  "resources": ["catalog", "stream", "meta"],
   "catalogs": [
     {
       "type": "movie",
