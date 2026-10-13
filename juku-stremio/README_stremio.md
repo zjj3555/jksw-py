@@ -51,13 +51,13 @@ python build.py --in /path/to/your/list.json --out .
 
 ## 4. 托管到 GitHub Pages（零服务器）
 
-1. 把 `juku-stremio/` 整个目录推到你的 `zjj3555/juku-switch-player` 仓库（main 分支）。
+1. 把 `juku-stremio/` 整个目录推到你的 `zjj3555/jksw-py` 仓库（main 分支）。
 2. 仓库 **Settings → Pages**：
    - Source: **GitHub Actions**（本目录已提供 `build-stremio.yml`，会自动 build 并发布）。
    - 或选 **Deploy from a branch → main → / (root)** 也行（静态文件已生成）。
 3. 等待部署完成，你的插件 manifest 地址是：
    ```
-   https://zjj3555.github.io/juku-switch-player/juku-stremio/manifest.json
+   https://zjj3555.github.io/jksw-py/juku-stremio/manifest.json
    ```
 
 ## 5. 在 SwitchStream 里安装
@@ -69,7 +69,7 @@ python build.py --in /path/to/your/list.json --out .
 2. 选 **“安装自定义插件 / Enter addon manifest URL”**（会弹出键盘）；
 3. 输入上面的 manifest URL：
    ```
-   https://zjj3555.github.io/juku-switch-player/juku-stremio/manifest.json
+   https://zjj3555.github.io/jksw-py/juku-stremio/manifest.json
    ```
 4. 安装完成后，首页/片单里会出现 **“Juku 片单 (HLS)”**；
 5. 点进去选片 → 选线路 → 直接播放 HLS。

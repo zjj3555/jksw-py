@@ -62,7 +62,7 @@
 
 ## ⚠️ 千万不要做的事
 
-- **不要把真实 list.json 推到 `zjj3555/juku-switch-player` 公开仓**。
+- **不要把真实 list.json 推到 `zjj3555/jksw-py` 公开仓**。
   本 workflow 已经锁定只用 `example_list.json` 部署，即使你不小心
   把 list.json 复制到 `juku-stremio/` 也没事，**但只要 `git add` 它就
   会出现在 commit 里**——请检查 `git status` 再 commit。

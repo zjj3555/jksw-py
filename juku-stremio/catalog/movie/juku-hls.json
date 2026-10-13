@@ -4,13 +4,13 @@
       "id": "juku-0000",
       "type": "movie",
       "name": "演示: 公开HLS测试流",
-      "poster": "https://raw.githubusercontent.com/zjj3555/juku-switch-player/main/juku-stremio/poster.png"
+      "poster": "https://raw.githubusercontent.com/zjj3555/jksw-py/main/juku-stremio/poster.png"
     },
     {
       "id": "juku-0001",
       "type": "movie",
       "name": "演示: 多线路示例",
-      "poster": "https://raw.githubusercontent.com/zjj3555/juku-switch-player/main/juku-stremio/poster.png"
+      "poster": "https://raw.githubusercontent.com/zjj3555/jksw-py/main/juku-stremio/poster.png"
     }
   ]
 }

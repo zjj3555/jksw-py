@@ -1,4 +1,4 @@
-# juku-switch-player
+# jksw-py
 
 极简的 Switch 自制播放器（libnx + libmpv），**完全绕过 tv.nro 面板**，用来直接播放剧库的 HLS 直链片单。
 
