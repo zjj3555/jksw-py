@@ -1,0 +1,18 @@
+{
+  "title": "示例片单(公开测试流)",
+  "items": [
+    {
+      "name": "演示: 公开HLS测试流",
+      "sources": [
+        { "name": "默认线路", "url": "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8" }
+      ]
+    },
+    {
+      "name": "演示: 多线路示例",
+      "sources": [
+        { "name": "线路A", "url": "https://test-streams.mux.dev/test_001/stream.m3u8" },
+        { "name": "线路B", "url": "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8" }
+      ]
+    }
+  ]
+}

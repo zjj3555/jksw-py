@@ -1,0 +1,54 @@
+name: build-juku-stremio
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'juku-stremio/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Build static Stremio plugin from list.json (if present)
+        run: |
+          cd juku-stremio
+          # 如果你把真实片单命名为 juku-stremio/list.json，则用它 build；
+          # 否则用 example_list.json 生成示例，保证 Pages 始终有内容。
+          if [ -f list.json ]; then
+            python build.py --in list.json --out .
+          else
+            python build.py --in example_list.json --out .
+          fi
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: juku-stremio
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

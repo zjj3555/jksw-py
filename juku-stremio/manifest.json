@@ -1,0 +1,29 @@
+{
+  "id": "community.juku.hls",
+  "version": "1.0.0",
+  "name": "Juku 片单 (HLS)",
+  "description": "把 juku 的免登录 HLS 直链片单作为 Stremio 插件接入 SwitchStream。",
+  "logo": "https://raw.githubusercontent.com/zjj3555/juku-switch-player/main/juku-stremio/logo.png",
+  "background": "https://raw.githubusercontent.com/zjj3555/juku-switch-player/main/juku-stremio/bg.png",
+  "types": ["movie", "series"],
+  "catalogs": [
+    {
+      "type": "movie",
+      "id": "juku-hls",
+      "name": "Juku 片单 (HLS)",
+      "extra": [{ "name": "skip", "isRequired": false }]
+    }
+  ],
+  "addonCatalogs": [
+    {
+      "type": "movie",
+      "id": "juku-hls",
+      "name": "Juku 片单 (HLS)"
+    }
+  ],
+  "idPrefixes": ["juku-"],
+  "behaviorHints": {
+    "configurable": false,
+    "cinemetaFallback": false
+  }
+}
