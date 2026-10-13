@@ -62,8 +62,6 @@ def build(in_path, out_dir):
             "id": sid,
             "type": "movie",
             "name": name,
-            # 给一个占位海报，避免 Stremio 客户端显示空白（可选）
-            "poster": "https://raw.githubusercontent.com/zjj3555/jksw-py/main/juku-stremio/poster.png",
         })
         streams = []
         for s in links:

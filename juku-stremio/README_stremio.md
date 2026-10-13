@@ -49,16 +49,19 @@ python build.py --in /path/to/your/list.json --out .
 
 会生成 `catalog/movie/juku-hls.json` 和 `stream/movie/juku-XXXX.json`。
 
-## 4. 托管到 GitHub Pages（零服务器）
+## 4. 托管（不需要 GitHub Pages，直接走 raw.githubusercontent.com）
 
-1. 把 `juku-stremio/` 整个目录推到你的 `zjj3555/jksw-py` 仓库（main 分支）。
-2. 仓库 **Settings → Pages**：
-   - Source: **GitHub Actions**（本目录已提供 `build-stremio.yml`，会自动 build 并发布）。
-   - 或选 **Deploy from a branch → main → / (root)** 也行（静态文件已生成）。
-3. 等待部署完成，你的插件 manifest 地址是：
-   ```
-   https://zjj3555.github.io/jksw-py/juku-stremio/manifest.json
-   ```
+`juku-stremio/` 整个目录已推到 `zjj3555/jksw-py` 仓库（main 分支），
+GitHub 会自动以 raw 方式提供每个文件。**不需要开 Pages 也能用**。
+
+你的插件 manifest 地址就是：
+```
+https://raw.githubusercontent.com/zjj3555/jksw-py/main/juku-stremio/manifest.json
+```
+（`raw.githubusercontent.com` 上的 JSON 是纯文本，SwitchStream 内部用 libcurl
+请求，不经过浏览器 CORS，完全可用。）
+
+> 如果 Switch 访问 `raw.githubusercontent.com` 慢/不稳，见 `local-build.md` 走本地 HTTP 服务。
 
 ## 5. 在 SwitchStream 里安装
 
@@ -67,18 +70,19 @@ python build.py --in /path/to/your/list.json --out .
 
 1. 进入 SwitchStream → **Addons**（插件）界面；
 2. 选 **“安装自定义插件 / Enter addon manifest URL”**（会弹出键盘）；
-3. 输入上面的 manifest URL：
+3. 输入 manifest URL：
    ```
-   https://zjj3555.github.io/jksw-py/juku-stremio/manifest.json
+   https://raw.githubusercontent.com/zjj3555/jksw-py/main/juku-stremio/manifest.json
    ```
 4. 安装完成后，首页/片单里会出现 **“Juku 片单 (HLS)”**；
 5. 点进去选片 → 选线路 → 直接播放 HLS。
 
 ## 6. 更新片单
 
-改好 `list.json` 后：
-- 本地先 `python build.py --in list.json` 重新生成；
-- 推送到仓库，GitHub Actions 会自动重新 build 并发布到 Pages；
+改好 `list.json` 后（本地）：
+- 先 `python build.py --in list.json` 重新生成 `catalog/` 和 `stream/`；
+- 把生成的 `catalog/movie/juku-hls.json` 和 `stream/movie/*.json` **推到仓库**
+  （见 `local-build.md` 的"走法 A"，用本地 HTTP 服务最省事，不必推）；
 - SwitchStream 侧刷新片单即可（或在 Addons 里重新安装一次该插件）。
 
 ---
