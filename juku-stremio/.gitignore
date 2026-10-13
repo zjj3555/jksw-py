@@ -1,0 +1,15 @@
+# 真实 juku 源（隐私）— 永远不要推
+list.json
+
+# Python
+__pycache__/
+*.pyc
+
+# OS
+.DS_Store
+Thumbs.db
+
+# —— 下面这些文件保留在仓里，是 example 内容，不影响隐私
+# catalog/movie/juku-hls.json
+# stream/movie/juku-0000.json
+# stream/movie/juku-0001.json
