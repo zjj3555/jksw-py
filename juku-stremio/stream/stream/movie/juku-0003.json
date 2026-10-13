@@ -1,0 +1,32 @@
+{
+  "streams": [
+    {
+      "url": "https://fengbao12.com/video/luosi/572955dd677d/index.m3u8",
+      "title": "线路1 (fengbao12.com)"
+    },
+    {
+      "url": "https://svip.ryplay14.com/20260912/19213_368b44c0/index.m3u8",
+      "title": "线路2 (svip.ryplay14.com)"
+    },
+    {
+      "url": "https://vip.ffzy-play10.com/20260911/71548_df42543d/index.m3u8",
+      "title": "线路3 (vip.ffzy-play10.com)"
+    },
+    {
+      "url": "https://v.lfthirtytwo.com/20260912/10442_b4cd5ef0/index.m3u8",
+      "title": "线路4 (v.lfthirtytwo.com)"
+    },
+    {
+      "url": "https://hn.bfvvs.com/play/azpnKlyd/index.m3u8",
+      "title": "线路5 (hn.bfvvs.com)"
+    },
+    {
+      "url": "https://v.gsuus.com/play/aADmPOle/index.m3u8",
+      "title": "线路6 (v.gsuus.com)"
+    },
+    {
+      "url": "https://svip.xgplay17.com/2026-09-11/39026_6ZtNtmNXs4b5a0j6XQ/index.m3u8",
+      "title": "线路7 (svip.xgplay17.com)"
+    }
+  ]
+}
