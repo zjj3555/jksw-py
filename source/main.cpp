@@ -336,13 +336,45 @@ int main(int argc, char** argv){
     PadState pad; padInitializeDefault(&pad);
     padUpdate(&pad);
 
-    printf("\x1b[2J\x1b[1;1Hjuku.nro v2 启动...\n");
+    printf("\x1b[2J\x1b[1;1Hjuku.nro v2.1 启动...\n");
+    printf("[1/6] console OK\n");
+    printf("      applet模式: %s\n", appletGetAppletType()==AppletType_Application ? "否(完整内存)" : "是(448MB)");
+
+    // 0) 诊断模式: 按 X 跳过网络, 直接测 UI (排查内存/初始化崩溃)
+    {
+        printf("\n按 X 进诊断模式(无网络) / A 正常启动...\n");
+        bool diag=false;
+        while(appletMainLoop()){
+            padUpdate(&pad);
+            u64 d=padGetButtonsDown(&pad);
+            if(d&KEY_X){ diag=true; break; }
+            if(d&KEY_A){ break; }
+            if(d&KEY_PLUS){ consoleExit(NULL); return 0; }
+            svcSleepThread(16'000'000);
+        }
+        if(diag){
+            // 诊断: 只测 UI 循环, 不碰 curl/mpv
+            std::vector<std::string> t{"测试条目1","测试条目2","测试条目3"};
+            int x = ui_list("诊断模式 - UI正常", t, pad, "A继续 B退出");
+            printf("UI OK (选了%d)!\n[2/6] 按A测播放(mpv, 离线直链)...\n", x);
+            while(appletMainLoop()){padUpdate(&pad); if(padGetButtonsDown(&pad)&KEY_A)break; svcSleepThread(16'000'000);}
+            consoleExit(NULL);
+            bool ok = play_url_watch("https://s1.fengbao9.com/video/jiashifuwu/a9bf07998a34/index.m3u8", 1500);
+            consoleInit(NULL);
+            printf("mpv 测试: %s\n按A退出\n", ok?"成功":"失败");
+            while(appletMainLoop()){padUpdate(&pad); if(padGetButtonsDown(&pad)&KEY_A)break; svcSleepThread(16'000'000);}
+            consoleExit(NULL);
+            return 0;
+        }
+    }
 
     // 1) 密钥 (sdmc:/juku/device_key.bin)
+    printf("[2/6] 生成/加载密钥...\n");
     memset(&g_ctx, 0, sizeof g_ctx);
     int kr = jk_load_or_create_key(&g_ctx, "sdmc:/juku/device_key.bin");
     if(kr){ printf("密钥初始化失败(%d)! 按A退出\n", kr);
         while(appletMainLoop()){padUpdate(&pad); if(padGetButtonsDown(&pad)&KEY_A)break; svcSleepThread(16'000'000);} consoleExit(NULL); return 0; }
+    printf("[2/6] 密钥OK (pub %.2x%.2x)\n", g_ctx.pub[0], g_ctx.pub[1]);
 
     // 2) 离线兼容: config.json 有 source 则用旧模式提示
     {
@@ -357,18 +389,20 @@ int main(int argc, char** argv){
 #ifdef HAVE_CURL
     if(g_live_mode){
         g_status = "注册设备中...";
-        printf("\x1b[1;1H注册设备中...\n");
-        // 注册 (重试3次)
+        printf("[3/6] curl 全局初始化...\n");
+        curl_global_init(CURL_GLOBAL_ALL);   // applet 下显式初始化, 失败早暴露
+        printf("[4/6] 注册设备中...\n");
         int rc = -1;
         for(int i=0;i<3 && rc;i++){
             rc = jk_ensure_session(&g_ctx, jk_http, nullptr);
-            if(rc){ g_status = "重试注册(" + std::to_string(i+1) + ")..."; svcSleepThread(1'000'000'000ULL); }
+            if(rc){ printf("  重试(%d)...\n", i+1); svcSleepThread(1'000'000'000ULL); }
         }
         if(rc){
-            printf("设备注册失败(%d)! 网络不通或服务器异常.\n按A退出\n", rc);
+            printf("设备注册失败(%d)!\n按A退出\n", rc);
             while(appletMainLoop()){padUpdate(&pad); if(padGetButtonsDown(&pad)&KEY_A)break; svcSleepThread(16'000'000);} consoleExit(NULL); return 0;
         }
-        g_status = "设备OK: " + std::string(g_ctx.device_id).substr(0,12) + "...";
+        printf("[4/6] 设备OK: %.16s...\n", g_ctx.device_id);
+        g_status = "设备OK";
     }
 #else
     g_live_mode = false;
