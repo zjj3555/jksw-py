@@ -29,7 +29,7 @@ LIBNX       := $(DEVKITPRO)/libnx
 PKGCONFIG  := $(PORTLIBS)/bin/aarch64-none-elf-pkg-config
 export PKG_CONFIG_PATH := $(PORTLIBS)/lib/pkgconfig
 
-INCLUDES    := -I$(LIBNX)/include -I$(PORTLIBS)/include
+INCLUDES    := -I$(LIBNX)/include -I$(PORTLIBS)/include -Isource -I.
 LIBDIRS     := -L$(LIBNX)/lib -L$(PORTLIBS)/lib
 
 # 优先用 pkg-config 取 mpv 全量静态依赖(含 ffmpeg 等), 失败则回退到 -lmpv

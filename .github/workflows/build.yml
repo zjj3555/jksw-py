@@ -13,8 +13,8 @@ jobs:
 
       - name: 安装依赖库 (libnx + libmpv 必需, curl 可选)
         run: |
+          dkp-pacman -S --noconfirm --disable-download-timeout switch-dev switch-libmpv switch-curl || \
           dkp-pacman -S --noconfirm switch-dev switch-libmpv
-          dkp-pacman -S --noconfirm switch-curl || echo "curl 不可用, 跳过(将仅支持本地文件)"
 
       - name: 编译 juku.nro
         env:
