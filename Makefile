@@ -3,7 +3,7 @@
 # 然后在本目录: make
 TARGET      := juku
 BUILD       := build
-SOURCES     := source/main.cpp
+SOURCES     := source/main.cpp source/juku_api.c third_party/uECC.c third_party/sha256.c
 NRO         := $(TARGET).nro
 
 PREFIX      := $(DEVKITPRO)/devkitA64/bin/aarch64-none-elf-
@@ -64,6 +64,8 @@ endif
 LIBS        := $(NX_SPECS) -Wl,-z,notext -Wl,--start-group $(MPV_LIBS) $(CURL_LIBS) -lnx -Wl,--end-group
 
 OBJS        := $(SOURCES:source/%.cpp=$(BUILD)/%.o)
+OBJS        := $(OBJS:source/%.c=$(BUILD)/%.o)
+OBJS        := $(OBJS:third_party/%.c=$(BUILD)/tp_%.o)
 
 all: $(NRO)
 $(NRO): $(OBJS)
@@ -75,6 +77,14 @@ $(NRO): $(OBJS)
 $(BUILD)/%.o: source/%.cpp
 	@mkdir -p $(BUILD)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+
+$(BUILD)/%.o: source/%.c
+	@mkdir -p $(BUILD)
+	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+
+$(BUILD)/tp_%.o: third_party/%.c
+	@mkdir -p $(BUILD)
+	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
 clean:
 	rm -rf $(BUILD) $(TARGET).elf $(NRO)
