@@ -320,7 +320,7 @@ static void wait_any_key(PadState& pad, const char* msg){
 static std::string swkbd_get_text(const std::string& hint, const std::string& initial=""){
     SwkbdConfig k;
     if(R_FAILED(swkbdCreate(&k, 0))) return "";
-    swkbdConfigMakeDefault(&k);
+    swkbdConfigMakePresetDefault(&k);   // libnx 新版 API (旧名 swkbdConfigMakeDefault)
     swkbdConfigSetHeaderText(&k, hint.c_str());
     swkbdConfigSetInitialText(&k, initial.c_str());
     char buf[256] = {0};
