@@ -3,6 +3,10 @@
 #define JUKU_API_H
 #include <stddef.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct {
     unsigned char priv[32];  // P-256 d (raw, big-endian)
     unsigned char pub[64];   // 未压缩点去掉 0x04: X(32)||Y(32)
@@ -38,5 +42,9 @@ int  jk_sign_b64(const JukuCtx *ctx, const char *signing_string, char *out, int 
 void jk_pub_spki_b64(const JukuCtx *ctx, char *out, int outsz);   // 注册用 SPKI base64
 int  jk_canonical_query(const char *const kv[][2], int n, char *out, int outsz);
 void jk_sha256_hex(const char *body, size_t len, char out[65]);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
